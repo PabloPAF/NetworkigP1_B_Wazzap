@@ -1,34 +1,43 @@
 import socket
 import select
-import sys
 
-HOST = '0.0.0.0'
-PORT = 12345
+SERVERHOST = '0.0.0.0'
+SERVERPORT = 12345
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((HOST, PORT))
-server_socket.listen(1)
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server_socket.bind((SERVERHOST, SERVERPORT))
+server_socket.listen()
 
-print(f"Server listening on {HOST}:{PORT}")
+print(f"Server listening on {SERVERHOST}:{SERVERPORT}")
 
-client_socket, client_address = server_socket.accept()
-print(f"Connected to {client_address}")
+# Keep track of connected sockets
+sockets_list = [server_socket]
+clients = {}
 
-sockets_list = [sys.stdin, client_socket]
+def broadcast(sender_socket, message):
+    for client_socket in clients:
+        if client_socket != sender_socket:
+            client_socket.send(message)
 
 while True:
     read_sockets, _, _ = select.select(sockets_list, [], [])
 
-    for sock in read_sockets:
-        if sock == client_socket:
-            message = sock.recv(1024)
-            if not message:
-                print("Client disconnected.")
-                server_socket.close()
-                sys.exit()
-            print(f"Client: {message.decode().strip()}")
+    for notified_socket in read_sockets:
+        if notified_socket == server_socket:
+            client_socket, client_address = server_socket.accept()
+            sockets_list.append(client_socket)
+            clients[client_socket] = client_address
+            print(f"Accepted connection from {client_address}")
         else:
-            msg = sys.stdin.readline()
-            client_socket.send(msg.encode())
-
-
+            try:
+                message = notified_socket.recv(1024)
+                if not message:
+                    raise ConnectionResetError()
+                print(f"[{clients[notified_socket]}]: {message.decode().strip()}")
+                broadcast(notified_socket, message)
+            except:
+                print(f"Connection closed from {clients[notified_socket]}")
+                sockets_list.remove(notified_socket)
+                del clients[notified_socket]
+                notified_socket.close()
