@@ -2,8 +2,8 @@ import socket
 import select
 import sys
 
-CLIENTHOST = 'rnbts-77-211-6-17.a.free.pinggy.link'  # update every 60 min
-CLIENTPORT = 36471        # Same port as server from pinggy
+CLIENTHOST = 'rnznb-77-211-6-17.a.free.pinggy.link'  # update every 60 min
+CLIENTPORT = 35733       # Same port as server from pinggy
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((CLIENTHOST, CLIENTPORT))
