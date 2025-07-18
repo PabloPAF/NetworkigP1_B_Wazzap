@@ -2,12 +2,12 @@ import socket
 import select
 import sys
 
-HOST = '127.0.0.1'  # Server IP address
-PORT = 12345        # Same port as server
+HOST = 'free.pinggy.io'  # Server IP address
+PORT = 443        # Same port as server
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((HOST, PORT))
-print("[*] Connected to server.")
+print("Connected to server.")
 
 sockets_list = [sys.stdin, client_socket]
 

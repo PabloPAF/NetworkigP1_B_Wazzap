@@ -2,8 +2,8 @@ import socket
 import select
 import sys
 
-HOST = '0.0.0.0'  # Listen on all interfaces
-PORT = 12345      # Arbitrary non-privileged port
+HOST = '0.0.0.0'
+PORT = 12345
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((HOST, PORT))
