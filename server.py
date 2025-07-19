@@ -5,6 +5,7 @@ import time
 SERVERHOST = '0.0.0.0'
 SERVERPORT = 12345
 PASSWORD = "1234"
+history = []
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -37,10 +38,11 @@ while True:
             try:
                 auth = client_socket.recv(1024).decode().strip()
                 username, passwd = auth.split("::", 1)
+                failed_attempts = 0
 
                 if passwd != PASSWORD:
                     client_socket.send("Wrong password. bye.\n".encode())
-                    
+                    print(f"{username} got kicked out")
                     client_socket.close()
                     sockets_list.remove(client_socket)
                     continue
@@ -66,11 +68,15 @@ while True:
                 timestamp = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime())
                 print(f"[{timestamp} {user}]: {msg}")
                 broadcast(sock, f"{user}: {msg}")
-
+                history.append(f"{timestamp} {user}: {msg}")
+                if msg == "download":
+                    print(f"f User {user} requested downloading chat history")
+                    with open("chat_history.txt", "a") as f:
+                        f.write(f"{history}")
             except:
                 user = clients.get(sock, "unknown")
                 print(f"{user} disconnected.")
-                broadcast(sock, f"{user} left")
+                broadcast(sock,f"{user} left")
                 if sock in clients:
                     del clients[sock]
                 if sock in sockets_list:

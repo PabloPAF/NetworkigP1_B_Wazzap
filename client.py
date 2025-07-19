@@ -2,8 +2,8 @@ import socket
 import select
 import sys
 
-CLIENTHOST = 'rniuf-31-4-243-13.a.free.pinggy.link'  # update every 60 min
-CLIENTPORT = 42721       # Same port as server from pinggy
+CLIENTHOST = '127.0.0.1'  # update pinggy every 60 min. For testing '127.0.0.1'
+CLIENTPORT = 12345       # Same port as server from pinggy. For testing 12345
 
 
 
@@ -25,6 +25,7 @@ while True:
     for sock in read_sockets:
         if sock == client_socket:
             message = sock.recv(1024)
+            print(message.decode())
             if not message:
                 print("Disconnected from server.")
                 sys.exit()
@@ -32,3 +33,4 @@ while True:
         else:
             msg = sys.stdin.readline()
             client_socket.send(msg.encode())
+
