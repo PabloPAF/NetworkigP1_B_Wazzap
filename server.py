@@ -63,6 +63,29 @@ while True:
 
                 user = clients.get(sock, "unknown")
                 msg = message.decode().strip()
+
+                # Handle private message
+                if msg.startswith("/msg "):
+                    parts = msg.split(" ", 2)
+                    if len(parts) >= 3:
+                        target_user = parts[1]
+                        private_msg = parts[2]
+                        target_socket = None
+                        for s, uname in clients.items():
+                            if uname == target_user:
+                                target_socket = s
+                                break
+                        if target_socket:
+                            try:
+                                target_socket.send(f"[PM from {user}] {private_msg}\n".encode())
+                                sock.send(f"[PM to {target_user}] {private_msg}\n".encode())
+                            except Exception as e:
+                                print(f"Error sending PM: {e}")
+                        else:
+                            sock.send(f"[Server] User {target_user} not found.\n".encode())
+                    continue
+
+                # Normal broadcast
                 timestamp = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime())
                 print(f"[{timestamp} {user}]: {msg}")
                 broadcast(sock, f"{user}: {msg}")
