@@ -6,7 +6,6 @@ CLIENTHOST = 'rnjhv-37-120-77-135.a.free.pinggy.link'  # update every 60 min
 CLIENTPORT = 37677       # Same port as server from pinggy
 
 
-
 username = input("Enter your username: ").strip()
 password = input("Enter server password: ").strip()
 
@@ -25,6 +24,7 @@ while True:
     for sock in read_sockets:
         if sock == client_socket:
             message = sock.recv(1024)
+            print(message.decode())
             if not message:
                 print("Disconnected from server.")
                 sys.exit()
@@ -32,3 +32,4 @@ while True:
         else:
             msg = sys.stdin.readline()
             client_socket.send(msg.encode())
+
