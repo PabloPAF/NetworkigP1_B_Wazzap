@@ -2,9 +2,8 @@ import socket
 import select
 import sys
 
-CLIENTHOST = '127.0.0.1'  # update pinggy every 60 min. For testing '127.0.0.1'
-CLIENTPORT = 12345       # Same port as server from pinggy. For testing 12345
-
+CLIENTHOST = 'rnjhv-37-120-77-135.a.free.pinggy.link'  # update every 60 min
+CLIENTPORT = 37677       # Same port as server from pinggy
 
 
 username = input("Enter your username: ").strip()
