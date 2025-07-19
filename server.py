@@ -49,8 +49,8 @@ while True:
 
                 clients[client_socket] = username
                 print(f"{username} connected from {client_address}")
-                broadcast(client_socket, f"{username} just joined")
-                client_socket.send("connected.\n".encode())
+                join_time = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime())
+                broadcast(client_socket, f"{username} | {join_time} : just joined")
 
             except Exception as e:
                 print(f"Error during authentication: {e}")
@@ -79,8 +79,9 @@ while True:
                                 break
                         if target_socket:
                             try:
-                                target_socket.send(f"[PM from {user}] {private_msg}\n".encode())
-                                sock.send(f"[PM to {target_user}] {private_msg}\n".encode())
+                                pm_time = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime())
+                                target_socket.send(f"{user} | {pm_time} : [PM] {private_msg}\n".encode())
+                                sock.send(f"You | {pm_time} : [PM to {target_user}] {private_msg}\n".encode())
                             except Exception as e:
                                 print(f"Error sending PM: {e}")
                         else:
@@ -90,7 +91,7 @@ while True:
                 # Normal broadcast
                 timestamp = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime())
                 print(f"[{timestamp} {user}]: {msg}")
-                broadcast(sock, f"{user}: {msg}")
+                broadcast(sock, f"{user} | {timestamp} : {msg}")
                 history.append(f"{timestamp} {user}: {msg}")
                 if msg == "download":
                     print(f"f User {user} requested downloading chat history")
@@ -99,7 +100,8 @@ while True:
             except:
                 user = clients.get(sock, "unknown")
                 print(f"{user} disconnected.")
-                broadcast(sock,f"{user} left")
+                leave_time = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime())
+                broadcast(sock, f"{user} | {leave_time} : left")
                 if sock in clients:
                     del clients[sock]
                 if sock in sockets_list:
