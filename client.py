@@ -2,20 +2,32 @@ import socket
 import select
 import sys
 
-CLIENTHOST = 'rnjhv-37-120-77-135.a.free.pinggy.link'  # update every 60 min
-CLIENTPORT = 37677       # Same port as server from pinggy
+CLIENTHOST = '127.0.0.1'  # update every 60 min
+CLIENTPORT = 12345# Same port as server from pinggy
 
 
-username = input("Enter your username: ").strip()
-password = input("Enter server password: ").strip()
+USERNAME = input("Enter your username: ").strip()
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((CLIENTHOST, CLIENTPORT))
 
-client_socket.send(f"{username}::{password}".encode())
+for attempt in range(3):
+    PASSWORD = input("Enter server password: ")
+    client_socket.send(f"{USERNAME}::{PASSWORD}".encode())
+    response = client_socket.recv(1024).decode()
+    if response != "Welcome to the chat.":
+        print("Wrong password.")
 
-print("Connected to server.")
-print("You joined the chat.")
+    else:
+        print("Connected to server.")
+        print("You joined the chat.")
+        break
+    if attempt == 2:
+        print("Too many failed attempts. Exiting.")
+        client_socket.close()
+        sys.exit()
+
+
 
 sockets_list = [sys.stdin, client_socket]
 
@@ -38,7 +50,7 @@ while True:
                         sender, content = after_bracket.split(":", 1)
                         sender = sender.strip()
                         content = content.strip()
-                        if sender.lower() == username.lower():
+                        if sender.lower() == USERNAME.lower():
                             print(f"You | {timestamp} : {content}")
                         else:
                             print(f"{sender} | {timestamp} : {content}")

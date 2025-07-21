@@ -34,23 +34,29 @@ while True:
         if sock == server_socket:
             client_socket, client_address = server_socket.accept()
             sockets_list.append(client_socket)
-
+            failed_attempts = 0
             try:
-                auth = client_socket.recv(1024).decode().strip()
-                username, passwd = auth.split("::", 1)
-                failed_attempts = 0
+                while failed_attempts < 3:
+                    auth = client_socket.recv(1024).decode().strip()
+                    username, passwd = auth.split("::", 1)
+                    if passwd == PASSWORD:
+                        clients[client_socket] = username
+                        print(f"{username} connected from {client_address}")
+                        join_time = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime())
+                        client_socket.send(f"Welcome to the chat.".encode())
+                        broadcast(client_socket, f"{username} | {join_time} : just joined")
+                        break
 
-                if passwd != PASSWORD:
-                    client_socket.send("Wrong password. bye.\n".encode())
-                    print(f"{username} got kicked out")
-                    client_socket.close()
-                    sockets_list.remove(client_socket)
-                    continue
-
-                clients[client_socket] = username
-                print(f"{username} connected from {client_address}")
-                join_time = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime())
-                broadcast(client_socket, f"{username} | {join_time} : just joined")
+                    else:
+                        failed_attempts += 1
+                        remaining_attempts = 3 - failed_attempts
+                        if remaining_attempts > 0:
+                            client_socket.send(f"Wrong password. Don´t worry you still have {3 - failed_attempts} attempts.\n".encode())
+                        else:
+                            print(f"{username} got kicked out")
+                            client_socket.close()
+                            sockets_list.remove(client_socket)
+                            break
 
             except Exception as e:
                 print(f"Error during authentication: {e}")
